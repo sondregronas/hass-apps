@@ -1,14 +1,12 @@
 name: QDomyos-Zwift
-version: "2026.05.05"
+version: "0.0.0"
 slug: qdomyos_zwift
 description: >-
   Connect your fitness equipment to Zwift and other virtual training apps via Bluetooth.
   Access the UI through the built-in WebGL web interface.
-url: https://github.com/cagnulein/qdomyos-zwift
+url: https://github.com/sondregronas/hass-apps
 arch:
   - amd64
-map:
-  - data:rw
 init: false
 privileged:
   - NET_ADMIN

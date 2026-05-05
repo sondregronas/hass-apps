@@ -16,7 +16,11 @@ ingress_port: 8080
 panel_icon: mdi:bike
 panel_title: QDomyos-Zwift
 image: ghcr.io/sondregronas/qdomyos-zwift-addon
+map:
+  - addon_config:rw
 options:
+  webgl_port: 8080
   log_level: info
 schema:
+  webgl_port: int
   log_level: list(trace|debug|info|notice|warning|error|fatal)

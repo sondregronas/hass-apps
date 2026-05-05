@@ -15,7 +15,7 @@ ingress: true
 ingress_port: 8080
 panel_icon: mdi:bike
 panel_title: QDomyos-Zwift
-image: ghcr.io/sondregronas/qdomyos-zwift-addon:{version}
+image: ghcr.io/sondregronas/qdomyos-zwift-addon
 options:
   log_level: info
 schema:

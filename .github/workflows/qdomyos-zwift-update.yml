@@ -82,7 +82,7 @@ jobs:
           cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/qdomyos-zwift-addon:cache
           cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/qdomyos-zwift-addon:cache,mode=max
           tags: |
-            ghcr.io/${{ github.repository_owner }}/qdomyos-zwift-addon:${{ steps.upstream.outputs.tag }}
+            ghcr.io/${{ github.repository_owner }}/qdomyos-zwift-addon:${{ steps.haversion.outputs.version }}
             ghcr.io/${{ github.repository_owner }}/qdomyos-zwift-addon:latest
 
       - name: Bump version in config.yaml
@@ -95,6 +95,6 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: bump add-on to ${{ steps.upstream.outputs.tag }} (HA: ${{ steps.haversion.outputs.version }})"
-          file_pattern: qdomyos_zwift/config.yaml
+          file_pattern: qdomyos_zwift/config.yaml qdomyos_zwift/build.yaml
 
 

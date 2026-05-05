@@ -1,5 +1,5 @@
 name: QDomyos-Zwift
-version: "1.0.0"
+version: "2026.05.05"
 slug: qdomyos_zwift
 description: >-
   Connect your fitness equipment to Zwift and other virtual training apps via Bluetooth.
@@ -7,7 +7,8 @@ description: >-
 url: https://github.com/cagnulein/qdomyos-zwift
 arch:
   - amd64
-  - aarch64
+map:
+  - data:rw
 init: false
 privileged:
   - NET_ADMIN
@@ -16,9 +17,8 @@ ingress: true
 ingress_port: 8080
 panel_icon: mdi:bike
 panel_title: QDomyos-Zwift
-image: ghcr.io/sondregronas/qdomyos-zwift-addon:2026.05.05
+image: ghcr.io/sondregronas/qdomyos-zwift-addon:{version}
 options:
   log_level: info
 schema:
   log_level: list(trace|debug|info|notice|warning|error|fatal)
-

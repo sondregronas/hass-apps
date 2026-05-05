@@ -24,16 +24,15 @@ RUN apt-get update && apt-get upgrade -y \
     && rm -rf /var/lib/apt/lists/*
 
 # ── Stage 2: Build Qt WebGL platform plugin ──────────────────────────────────
+# Qt 5.15.x releases after 5.15.2 are commercial-only on download.qt.io,
+# so we clone the open-source mirror from GitHub instead.
 FROM build-base AS webgl-builder
 
-ARG QT_VERSION=5.15
-ARG QT_SUBVERSION=5.15.13
-ARG QT_WEBPLUGIN_NAME=qtwebglplugin-everywhere-opensource-src
+ARG QT_WEBGL_BRANCH=5.15
 
 WORKDIR /usr/local/src
-RUN wget -q https://download.qt.io/official_releases/qt/${QT_VERSION}/${QT_SUBVERSION}/submodules/${QT_WEBPLUGIN_NAME}-${QT_SUBVERSION}.zip \
-    && unzip -q ${QT_WEBPLUGIN_NAME}-${QT_SUBVERSION}.zip \
-    && mv *-${QT_SUBVERSION} qtwebglplugin \
+RUN git clone --depth 1 --branch ${QT_WEBGL_BRANCH} \
+        https://github.com/qt/qtwebglplugin.git qtwebglplugin \
     && cd qtwebglplugin \
     && qmake \
     && make -j$(nproc)
@@ -88,11 +87,20 @@ RUN apt-get update && apt-get upgrade -y \
 FROM runtime
 
 COPY --from=app-builder /usr/local/src/qdomyos-zwift/src/qdomyos-zwift /usr/local/bin/qdomyos-zwift
-COPY --from=webgl-builder /usr/local/src/qtwebglplugin/plugins/platforms/libqwebgl.so \
-    /usr/lib/x86_64-linux-gnu/qt5/plugins/platforms/libqwebgl.so
+COPY --from=webgl-builder /usr/local/src/qtwebglplugin/plugins/platforms/libqwebgl.so /tmp/libqwebgl.so
+# Derive the multiarch triple from uname -m (no dpkg-dev needed)
+RUN ARCH=$(uname -m) \
+    && case "$ARCH" in \
+        x86_64)  TRIPLE="x86_64-linux-gnu" ;; \
+        aarch64) TRIPLE="aarch64-linux-gnu" ;; \
+        armv7l)  TRIPLE="arm-linux-gnueabihf" ;; \
+        *)       echo "Unsupported arch: $ARCH" && exit 1 ;; \
+    esac \
+    && mkdir -p /usr/lib/${TRIPLE}/qt5/plugins/platforms \
+    && mv /tmp/libqwebgl.so /usr/lib/${TRIPLE}/qt5/plugins/platforms/libqwebgl.so
 
 COPY run.sh /run.sh
 RUN chmod +x /run.sh
-
+EXPOSE 8080
 CMD ["/run.sh"]
 

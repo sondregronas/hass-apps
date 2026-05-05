@@ -1,6 +1,7 @@
-#!/usr/bin/with-contenv bashio
+#!/bin/bash
+set -e
 
-bashio::log.info "Starting QDomyos-Zwift (WebGL on port 8080)..."
+echo "[INFO] Starting QDomyos-Zwift (WebGL on port 8080)..."
 
 # Start D-Bus if the system socket isn't available
 if [ ! -e /run/dbus/system_bus_socket ]; then
@@ -9,4 +10,3 @@ if [ ! -e /run/dbus/system_bus_socket ]; then
 fi
 
 exec qdomyos-zwift -qml -platform webgl:port=8080
-

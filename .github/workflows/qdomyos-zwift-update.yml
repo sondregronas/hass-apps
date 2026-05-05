@@ -30,15 +30,28 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Current add-on version: $VERSION"
 
+      - name: Derive HA-compatible version
+        id: haversion
+        run: |
+          TAG="${{ steps.upstream.outputs.tag }}"
+          # Strip leading 'v', replace any non-numeric/dot chars with dots, collapse dots
+          HA_VER=$(echo "$TAG" | sed 's/^v//' | sed 's/[^0-9.]/-/g' | sed 's/-\+/./g' | sed 's/^\.\|\.$//')
+          # If it doesn't look like X.Y.Z, fall back to date-based version
+          if ! echo "$HA_VER" | grep -qE '^[0-9]+\.[0-9]+'; then
+            HA_VER=$(date +%Y.%-m.%-d)
+          fi
+          echo "version=$HA_VER" >> $GITHUB_OUTPUT
+          echo "HA version: $HA_VER"
+
       - name: Check if update needed
         id: needs_update
         run: |
-          if [ "${{ steps.upstream.outputs.tag }}" = "${{ steps.current.outputs.version }}" ]; then
+          if [ "${{ steps.haversion.outputs.version }}" = "${{ steps.current.outputs.version }}" ]; then
             echo "needed=false" >> $GITHUB_OUTPUT
             echo "Already up to date."
           else
             echo "needed=true" >> $GITHUB_OUTPUT
-            echo "Update needed: ${{ steps.current.outputs.version }} → ${{ steps.upstream.outputs.tag }}"
+            echo "Update needed: ${{ steps.current.outputs.version }} → ${{ steps.haversion.outputs.version }}"
           fi
 
       - name: Set up QEMU
@@ -73,13 +86,13 @@ jobs:
       - name: Bump version in config.yaml
         if: steps.needs_update.outputs.needed == 'true'
         run: |
-          sed -i "s/^version:.*/version: \"${{ steps.upstream.outputs.tag }}\"/" qdomyos_zwift/config.yaml
+          sed -i "s/^version:.*/version: \"${{ steps.haversion.outputs.version }}\"/" qdomyos_zwift/config.yaml
 
       - name: Commit and push version bump
         if: steps.needs_update.outputs.needed == 'true'
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore: bump add-on to ${{ steps.upstream.outputs.tag }}"
+          commit_message: "chore: bump add-on to ${{ steps.upstream.outputs.tag }} (HA: ${{ steps.haversion.outputs.version }})"
           file_pattern: qdomyos_zwift/config.yaml
 
 

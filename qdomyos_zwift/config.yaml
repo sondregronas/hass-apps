@@ -1,0 +1,24 @@
+name: QDomyos-Zwift
+version: "1.0.0"
+slug: qdomyos_zwift
+description: >-
+  Connect your fitness equipment to Zwift and other virtual training apps via Bluetooth.
+  Access the UI through the built-in WebGL web interface.
+url: https://github.com/cagnulein/qdomyos-zwift
+arch:
+  - amd64
+  - aarch64
+init: false
+privileged:
+  - NET_ADMIN
+host_network: true
+ingress: true
+ingress_port: 8080
+panel_icon: mdi:bike
+panel_title: QDomyos-Zwift
+image: ghcr.io/sondregronas/qdomyos-zwift-addon:{version}
+options:
+  log_level: info
+schema:
+  log_level: list(trace|debug|info|notice|warning|error|fatal)
+

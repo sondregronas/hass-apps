@@ -1,4 +1,3 @@
-name: Sondre Gronas Add-ons
-url: https://github.com/sondregronas/hass-apps
-maintainer: sondregronas
-
+name: "Sondre Gronas Add-ons"
+url: "https://github.com/sondregronas/hass-apps"
+maintainer: "sondregronas"

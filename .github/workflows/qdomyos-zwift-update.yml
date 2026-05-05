@@ -79,6 +79,8 @@ jobs:
           push: true
           build-args: |
             QDOMYOS_VERSION=${{ steps.upstream.outputs.tag }}
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/qdomyos-zwift-addon:cache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/qdomyos-zwift-addon:cache,mode=max
           tags: |
             ghcr.io/${{ github.repository_owner }}/qdomyos-zwift-addon:${{ steps.upstream.outputs.tag }}
             ghcr.io/${{ github.repository_owner }}/qdomyos-zwift-addon:latest

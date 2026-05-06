@@ -6,6 +6,12 @@ All credits go to [@cagnulein](https://github.com/cagnulein) and the
 original [qdomyos-zwift](https://github.com/cagnulein/qdomyos-zwift) project. This is simply a Dockerfile wrapper to run
 it as a Home Assistant add-on.
 
+## Settings location
+
+The add-on's configuration file is located at `/addon_configs/<id>_qdomyos-zwift/` in the Home Assistant file system.
+Since the web interface can be slow it might be easier to edit the configuration on your phone and then copy it to the
+add-on's config directory directly.
+
 ## Configuration
 
 | Option      | Default | Description                                                                         |

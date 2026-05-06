@@ -1,5 +1,5 @@
 name: QDomyos-Zwift
-version: "nightly-2026-05-05"
+version: "nightly-2026-05-06"
 slug: qdomyos_zwift
 description: >-
   Dockerfile wrapper for qdomyos-zwift by cagnulein.

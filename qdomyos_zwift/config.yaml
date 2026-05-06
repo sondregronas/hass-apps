@@ -11,7 +11,7 @@ init: false
 privileged:
   - NET_ADMIN
 host_network: true
-webui: [ PROTO:option_name ]://[HOST]:[PORT:8080]/
+webui: http://[HOST]:[PORT:8080]/
 image: ghcr.io/sondregronas/qdomyos-zwift-addon
 map:
   - addon_config:rw

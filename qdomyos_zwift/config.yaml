@@ -4,7 +4,7 @@ slug: qdomyos_zwift
 description: >-
   Dockerfile wrapper for qdomyos-zwift by cagnulein.
   
-  Visit the application at `http(s)://[HOST]:[PORT:8080]/` after starting the add-on.
+  Visit the application the specified port on the host machine to access the web interface. (Default port: 8080)
 url: https://github.com/sondregronas/hass-apps/tree/main/qdomyos_zwift
 arch:
   - amd64
@@ -12,7 +12,6 @@ init: false
 privileged:
   - NET_ADMIN
 host_network: true
-webui: http://[HOST]:[PORT:8080]/
 image: ghcr.io/sondregronas/qdomyos-zwift-addon
 map:
   - addon_config:rw

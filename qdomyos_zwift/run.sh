@@ -8,14 +8,14 @@ WS_PORT=$((PORT + 2))
 
 echo "[INFO] Starting QDomyos-Zwift on port ${PORT} (internal HTTP: ${HTTP_PORT}, WS: ${WS_PORT})..."
 
-# Persist /root/.config to /addon_config so settings are visible and survive restarts
-mkdir -p /addon_config
+# Persist /root/.config to /config (addon_config mount) so settings survive restarts
+mkdir -p /config
 if [ -d /root/.config ] && [ ! -L /root/.config ]; then
-    # Copy any default config files into addon_config (won't overwrite existing persisted files)
-    cp -rn /root/.config/. /addon_config/ 2>/dev/null || true
+    # Copy any default config files into /config (won't overwrite existing persisted files)
+    cp -rn /root/.config/. /config/ 2>/dev/null || true
     rm -rf /root/.config
 fi
-ln -sfn /addon_config /root/.config
+ln -sfn /config /root/.config
 
 # Start D-Bus if the system socket isn't available
 if [ ! -e /run/dbus/system_bus_socket ]; then

@@ -34,7 +34,7 @@ WORKDIR /usr/local/src
 RUN git clone --depth 1 --branch ${QT_WEBGL_BRANCH} \
         https://github.com/qt/qtwebglplugin.git qtwebglplugin \
     && cd qtwebglplugin \
-    && sed -i 's|var socket = new WebSocket("ws://" + host + ":" + port);|var socket = new WebSocket((window.location.protocol === "https:" ? "wss" : "ws") + "://" + host + ":" + port);|' \
+    && sed -i 's|var socket = new WebSocket("ws://" + host + ":" + port);|var socket = new WebSocket((window.location.protocol === "https:" ? "wss" : "ws") + "://" + window.location.host);|' \
         src/plugins/platforms/webgl/webqt.jsx \
     && qmake \
     && make -j$(nproc)
@@ -82,6 +82,7 @@ RUN apt-get update && apt-get upgrade -y \
         libqt5location5 \
         bluez \
         dbus \
+        nginx \
         bash \
     && rm -rf /var/lib/apt/lists/*
 

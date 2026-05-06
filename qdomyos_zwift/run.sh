@@ -1,12 +1,12 @@
 #!/bin/bash
 set -e
 
-echo "[INFO] Starting QDomyos-Zwift..."
+PORT=$(grep -o '"port":[^,}]*' /data/options.json 2>/dev/null | grep -o '[0-9]*' || echo 8080)
+PORT=${PORT:-8080}
+HTTP_PORT=$((PORT + 1))
+WS_PORT=$((PORT + 2))
 
-# Read port from HA options (/data/options.json), default to 8080
-WEBGL_PORT=$(grep -o '"webgl_port":[^,}]*' /data/options.json 2>/dev/null | grep -o '[0-9]*' || echo 8080)
-WEBGL_PORT=${WEBGL_PORT:-8080}
-echo "[INFO] WebGL port: ${WEBGL_PORT}"
+echo "[INFO] Starting QDomyos-Zwift on port ${PORT} (internal HTTP: ${HTTP_PORT}, WS: ${WS_PORT})..."
 
 # Persist /root/.config to /addon_config so settings are visible and survive restarts
 mkdir -p /addon_config
@@ -18,4 +18,28 @@ if [ ! -e /run/dbus/system_bus_socket ]; then
     dbus-daemon --system --fork
 fi
 
-exec qdomyos-zwift -qml -platform webgl:port=${WEBGL_PORT}
+# Generate nginx config with the user-configured port
+cat > /etc/nginx/nginx.conf <<EOF
+events {}
+http {
+    server {
+        listen ${PORT};
+        location / {
+            proxy_pass http://127.0.0.1:${HTTP_PORT};
+            proxy_set_header Host \$host;
+            proxy_set_header X-Forwarded-Proto \$scheme;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade \$http_upgrade;
+            proxy_set_header Connection \$http_connection;
+            if (\$http_upgrade = "websocket") {
+                proxy_pass http://127.0.0.1:${WS_PORT};
+            }
+        }
+    }
+}
+EOF
+
+nginx -g "daemon off;" &
+
+exec qdomyos-zwift -qml -platform webgl:port=${HTTP_PORT}:wsserverport=${WS_PORT}
+

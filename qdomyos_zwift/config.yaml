@@ -2,9 +2,10 @@ name: QDomyos-Zwift
 version: "nightly-2026-05-05"
 slug: qdomyos_zwift
 description: >-
-  Connect your fitness equipment to Zwift and other virtual training apps via Bluetooth.
-  Access the UI at http://<host-ip>:<port>. Works through a reverse proxy with WebSocket support.
-url: https://github.com/sondregronas/hass-apps
+  Dockerfile wrapper for qdomyos-zwift by cagnulein.
+  
+  Visit the application at `http(s)://[HOST]:[PORT:8080]/` after starting the add-on.
+url: https://github.com/sondregronas/hass-apps/tree/main/qdomyos_zwift
 arch:
   - amd64
 init: false

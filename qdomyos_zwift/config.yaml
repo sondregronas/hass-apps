@@ -3,7 +3,7 @@ version: "nightly-2026-05-05"
 slug: qdomyos_zwift
 description: >-
   Connect your fitness equipment to Zwift and other virtual training apps via Bluetooth.
-  Access the UI through the built-in WebGL web interface.
+  Access the UI through the built-in WebGL web interface available at http://<host>:8080.
 url: https://github.com/sondregronas/hass-apps
 arch:
   - amd64
@@ -11,7 +11,6 @@ init: false
 privileged:
   - NET_ADMIN
 host_network: true
-webui: [ PROTO:option_name ]://[HOST]:8080/
 image: ghcr.io/sondregronas/qdomyos-zwift-addon
 map:
   - addon_config:rw

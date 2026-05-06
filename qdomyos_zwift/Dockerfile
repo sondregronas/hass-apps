@@ -34,6 +34,8 @@ WORKDIR /usr/local/src
 RUN git clone --depth 1 --branch ${QT_WEBGL_BRANCH} \
         https://github.com/qt/qtwebglplugin.git qtwebglplugin \
     && cd qtwebglplugin \
+    && sed -i 's|var socket = new WebSocket("ws://" + host + ":" + port);|var socket = new WebSocket((window.location.protocol === "https:" ? "wss" : "ws") + "://" + host + ":" + port);|' \
+        src/plugins/platforms/webgl/webqt.jsx \
     && qmake \
     && make -j$(nproc)
 

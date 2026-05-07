@@ -20,7 +20,7 @@ options:
   port: 8080
   log_level: info
   no_gui: false
-  lock_settings: true
+  lock_settings: false
 schema:
   port: int
   log_level: list(trace|debug|info|notice|warning|error|fatal)

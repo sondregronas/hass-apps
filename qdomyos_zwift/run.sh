@@ -7,25 +7,15 @@ HTTP_PORT=$((PORT + 1))
 WS_PORT=$((PORT + 2))
 NO_GUI=$(grep -o '"no_gui":[^,}]*' /data/options.json 2>/dev/null | grep -o 'true\|false' || echo false)
 NO_GUI=${NO_GUI:-false}
-LOCK_SETTINGS=$(grep -o '"lock_settings":[^,}]*' /data/options.json 2>/dev/null | grep -o 'true\|false' || echo true)
-LOCK_SETTINGS=${LOCK_SETTINGS:-true}
 
 echo "[INFO] Starting QDomyos-Zwift on port ${PORT} (internal HTTP: ${HTTP_PORT}, WS: ${WS_PORT})..."
 
-mkdir -p /root/.config /config
-
-# Restore write permissions in case a previous run locked the directory
-chmod 755 /root/.config 2>/dev/null || true
-find /root/.config -name "*.conf" -exec chmod 644 {} \; 2>/dev/null || true
-
-if [ "$(ls -A /config 2>/dev/null)" ]; then
-    cp -rf /config/. /root/.config/
+mkdir -p /config
+if [ -d /root/.config ] && [ ! -L /root/.config ]; then
+    cp -rn /root/.config/. /config/ 2>/dev/null || true
+    rm -rf /root/.config
 fi
-
-if [ "$LOCK_SETTINGS" = "true" ]; then
-    find /root/.config -name "*.conf" -exec chmod 444 {} \; 2>/dev/null || true
-    chmod 555 /root/.config 2>/dev/null || true
-fi
+ln -sfn /config /root/.config
 
 # Required by Qt; missing this can cause a segfault
 export XDG_RUNTIME_DIR=/tmp/runtime-root
@@ -64,12 +54,17 @@ if [ "$NO_GUI" = "true" ]; then
     GUI_FLAGS="-no-gui -no-console -no-log"
 fi
 
-set +e
-qdomyos-zwift ${GUI_FLAGS}
-EXIT_CODE=$?
-set -e
+while true; do
+    set +e
+    qdomyos-zwift ${GUI_FLAGS}
+    EXIT_CODE=$?
+    set -e
 
-if [ $EXIT_CODE -ne 0 ]; then
+    if [ $EXIT_CODE -eq 0 ]; then
+        echo "[INFO] qdomyos-zwift exited cleanly."
+        break
+    fi
+
     echo "[ERROR] qdomyos-zwift exited with code ${EXIT_CODE}" >&2
     if [ $EXIT_CODE -eq 139 ]; then
         echo "[ERROR] Segmentation fault (SIGSEGV) detected." >&2
@@ -77,5 +72,7 @@ if [ $EXIT_CODE -ne 0 ]; then
         echo "[ERROR] /root/.config permissions: $(stat -c '%a %n' /root/.config 2>/dev/null)" >&2
         echo "[ERROR] dbus socket: $(ls -la /run/dbus/system_bus_socket 2>/dev/null || echo 'missing')" >&2
     fi
-    exit $EXIT_CODE
-fi
+
+    echo "[INFO] Restarting in 3 seconds..."
+    sleep 3
+done

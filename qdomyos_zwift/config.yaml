@@ -2,9 +2,7 @@ name: QDomyos-Zwift
 version: "nightly-2026-05-06"
 slug: qdomyos_zwift
 description: >-
-  Dockerfile wrapper for qdomyos-zwift by cagnulein.
-  
-  Visit the application the specified port on the host machine to access the web interface. (Default port: 8080)
+  Runs qdomyos-zwift (by cagnulein) as a Home Assistant add-on. Access the web interface on the configured port (default: 8080).
 url: https://github.com/sondregronas/hass-apps/tree/main/qdomyos_zwift
 arch:
   - amd64
@@ -21,6 +19,8 @@ uart: true
 options:
   port: 8080
   log_level: info
+  no_gui: false
 schema:
   port: int
   log_level: list(trace|debug|info|notice|warning|error|fatal)
+  no_gui: bool

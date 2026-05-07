@@ -5,6 +5,8 @@ PORT=$(grep -o '"port":[^,}]*' /data/options.json 2>/dev/null | grep -o '[0-9]*'
 PORT=${PORT:-8080}
 HTTP_PORT=$((PORT + 1))
 WS_PORT=$((PORT + 2))
+NO_GUI=$(grep -o '"no_gui":[^,}]*' /data/options.json 2>/dev/null | grep -o 'true\|false' || echo false)
+NO_GUI=${NO_GUI:-false}
 
 echo "[INFO] Starting QDomyos-Zwift on port ${PORT} (internal HTTP: ${HTTP_PORT}, WS: ${WS_PORT})..."
 
@@ -46,5 +48,10 @@ EOF
 
 nginx -g "daemon off;" &
 
-exec qdomyos-zwift -qml -platform webgl:port=${HTTP_PORT}:wsserverport=${WS_PORT}
+GUI_FLAGS="-qml -platform webgl:port=${HTTP_PORT}:wsserverport=${WS_PORT}"
+if [ "$NO_GUI" = "true" ]; then
+    GUI_FLAGS="-no-gui -no-console -no-log"
+fi
+
+exec qdomyos-zwift ${GUI_FLAGS}
 

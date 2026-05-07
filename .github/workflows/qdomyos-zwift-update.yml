@@ -30,15 +30,31 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Current add-on version: $VERSION"
 
+      - name: Compute new version
+        id: new_version
+        run: |
+          BASE="nightly-$(date -u +%Y-%m-%d)"
+          CURRENT="${{ steps.current.outputs.version }}"
+          # Check if current version is already today's base
+          if [ "$CURRENT" = "$BASE" ]; then
+            echo "version=${BASE}-2" >> $GITHUB_OUTPUT
+          elif [[ "$CURRENT" =~ ^${BASE}-([0-9]+)$ ]]; then
+            N="${BASH_REMATCH[1]}"
+            echo "version=${BASE}-$((N+1))" >> $GITHUB_OUTPUT
+          else
+            echo "version=${BASE}" >> $GITHUB_OUTPUT
+          fi
+          echo "New version: $(grep 'version=' $GITHUB_OUTPUT | tail -1)"
+
       - name: Check if update needed
         id: needs_update
         run: |
-          if [ "${{ steps.upstream.outputs.tag }}" = "${{ steps.current.outputs.version }}" ]; then
+          if [ "${{ steps.upstream.outputs.tag }}" = "${{ steps.current.outputs.version }}" ] && [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
             echo "needed=false" >> $GITHUB_OUTPUT
             echo "Already up to date."
           else
             echo "needed=true" >> $GITHUB_OUTPUT
-            echo "Update needed: ${{ steps.current.outputs.version }} → ${{ steps.upstream.outputs.tag }}"
+            echo "Update needed: ${{ steps.current.outputs.version }} → ${{ steps.new_version.outputs.version }}"
           fi
 
       - name: Set up QEMU
@@ -69,19 +85,19 @@ jobs:
           cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/qdomyos-zwift-addon:cache
           cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/qdomyos-zwift-addon:cache,mode=max
           tags: |
-            ghcr.io/${{ github.repository_owner }}/qdomyos-zwift-addon:${{ steps.upstream.outputs.tag }}
+            ghcr.io/${{ github.repository_owner }}/qdomyos-zwift-addon:${{ steps.new_version.outputs.version }}
             ghcr.io/${{ github.repository_owner }}/qdomyos-zwift-addon:latest
 
       - name: Bump version in config.yaml
         if: steps.needs_update.outputs.needed == 'true'
         run: |
-          sed -i "s/^version:.*/version: \"${{ steps.upstream.outputs.tag }}\"/" qdomyos_zwift/config.yaml
+          sed -i "s/^version:.*/version: \"${{ steps.new_version.outputs.version }}\"/" qdomyos_zwift/config.yaml
 
       - name: Commit and push version bump
         if: steps.needs_update.outputs.needed == 'true'
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore: bump add-on to ${{ steps.upstream.outputs.tag }}"
+          commit_message: "chore: bump add-on to ${{ steps.new_version.outputs.version }} (upstream: ${{ steps.upstream.outputs.tag }})"
           file_pattern: qdomyos_zwift/config.yaml
 
 

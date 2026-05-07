@@ -10,9 +10,24 @@ NO_GUI=${NO_GUI:-false}
 
 echo "[INFO] Starting QDomyos-Zwift on port ${PORT} (internal HTTP: ${HTTP_PORT}, WS: ${WS_PORT})..."
 
-# Direct Qt config to the persistent /config mount (addon_config:rw) so settings survive restarts
-export XDG_CONFIG_HOME=/config
+w# Persist settings: restore saved config from /config and make it read-only
+# so the app reads our settings but cannot overwrite them on startup.
+mkdir -p /root/.config
 mkdir -p /config
+
+if [ "$(ls -A /config 2>/dev/null)" ]; then
+    cp -rf /config/. /root/.config/
+fi
+
+# Make config files read-only so the app can't overwrite them
+find /root/.config -name "*.conf" -exec chmod 444 {} \; 2>/dev/null || true
+
+# On exit, make writable again and save back to /config
+_save_config() {
+    find /root/.config -name "*.conf" -exec chmod 644 {} \; 2>/dev/null || true
+    cp -rf /root/.config/. /config/ 2>/dev/null || true
+}
+trap _save_config EXIT
 
 # Start D-Bus if the system socket isn't available
 if [ ! -e /run/dbus/system_bus_socket ]; then
@@ -48,5 +63,5 @@ if [ "$NO_GUI" = "true" ]; then
     GUI_FLAGS="-no-gui -no-console -no-log"
 fi
 
-exec qdomyos-zwift ${GUI_FLAGS}
+qdomyos-zwift ${GUI_FLAGS}
 

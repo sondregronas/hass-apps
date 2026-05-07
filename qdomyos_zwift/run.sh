@@ -10,7 +10,7 @@ NO_GUI=${NO_GUI:-false}
 
 echo "[INFO] Starting QDomyos-Zwift on port ${PORT} (internal HTTP: ${HTTP_PORT}, WS: ${WS_PORT})..."
 
-w# Persist settings: restore saved config from /config and make it read-only
+# Persist settings: restore saved config from /config and make it read-only
 # so the app reads our settings but cannot overwrite them on startup.
 mkdir -p /root/.config
 mkdir -p /config

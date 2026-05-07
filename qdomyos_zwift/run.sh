@@ -64,6 +64,9 @@ EOF
 
 nginx -g "daemon off;" &
 
+# Suppress noisy Qt Bluetooth debug logs
+export QT_LOGGING_RULES="*.debug=false;qt.bluetooth*=false"
+
 GUI_FLAGS="-qml -platform webgl:port=${HTTP_PORT}:wsserverport=${WS_PORT}"
 if [ "$NO_GUI" = "true" ]; then
     GUI_FLAGS="-no-gui -no-console"

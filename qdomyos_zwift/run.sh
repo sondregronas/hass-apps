@@ -10,14 +10,9 @@ NO_GUI=${NO_GUI:-false}
 
 echo "[INFO] Starting QDomyos-Zwift on port ${PORT} (internal HTTP: ${HTTP_PORT}, WS: ${WS_PORT})..."
 
-# Persist /root/.config to /config (addon_config mount) so settings survive restarts
+# Direct Qt config to the persistent /config mount (addon_config:rw) so settings survive restarts
+export XDG_CONFIG_HOME=/config
 mkdir -p /config
-if [ -d /root/.config ] && [ ! -L /root/.config ]; then
-    # Copy any default config files into /config (won't overwrite existing persisted files)
-    cp -rn /root/.config/. /config/ 2>/dev/null || true
-    rm -rf /root/.config
-fi
-ln -sfn /config /root/.config
 
 # Start D-Bus if the system socket isn't available
 if [ ! -e /run/dbus/system_bus_socket ]; then

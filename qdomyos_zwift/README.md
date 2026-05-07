@@ -14,8 +14,9 @@ add-on's config directory directly.
 
 ## Configuration
 
-| Option      | Default | Description                                                                         |
-|-------------|---------|-------------------------------------------------------------------------------------|
-| `port`      | `8080`  | Port to access the Web UI                                                           |
-| `log_level` | `info`  | Logging verbosity (`trace`, `debug`, `info`, `notice`, `warning`, `error`, `fatal`) |
-| `no_gui`    | `false` | Run without the web UI (`-no-gui -no-console -no-log`). Useful for headless setups  |
+| Option          | Default | Description                                                                                                                       |
+|-----------------|---------|-----------------------------------------------------------------------------------------------------------------------------------|
+| `port`          | `8080`  | Port to access the Web UI                                                                                                         |
+| `log_level`     | `info`  | Logging verbosity (`trace`, `debug`, `info`, `notice`, `warning`, `error`, `fatal`)                                               |
+| `no_gui`        | `false` | Run without the web UI (`-no-gui -no-console -no-log`). Useful for headless setups                                                |
+| `lock_settings` | `true`  | Lock the settings file on startup so the app cannot overwrite it. Disable if you want the app to persist its own settings changes |

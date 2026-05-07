@@ -7,11 +7,14 @@ HTTP_PORT=$((PORT + 1))
 WS_PORT=$((PORT + 2))
 NO_GUI=$(grep -o '"no_gui":[^,}]*' /data/options.json 2>/dev/null | grep -o 'true\|false' || echo false)
 NO_GUI=${NO_GUI:-false}
+LOCK_SETTINGS=$(grep -o '"lock_settings":[^,}]*' /data/options.json 2>/dev/null | grep -o 'true\|false' || echo true)
+LOCK_SETTINGS=${LOCK_SETTINGS:-true}
 
 echo "[INFO] Starting QDomyos-Zwift on port ${PORT} (internal HTTP: ${HTTP_PORT}, WS: ${WS_PORT})..."
 
-# Persist settings: restore saved config from /config and make it read-only
-# so the app reads our settings but cannot overwrite them on startup.
+# Persist settings: restore saved config from /config on each start.
+# /config (mapped to /addon_configs/...) is the source of truth - edit files there.
+# We lock down /root/.config so Qt cannot overwrite settings via atomic temp-file rename.
 mkdir -p /root/.config
 mkdir -p /config
 
@@ -19,15 +22,13 @@ if [ "$(ls -A /config 2>/dev/null)" ]; then
     cp -rf /config/. /root/.config/
 fi
 
-# Make config files read-only so the app can't overwrite them
-find /root/.config -name "*.conf" -exec chmod 444 {} \; 2>/dev/null || true
-
-# On exit, make writable again and save back to /config
-_save_config() {
-    find /root/.config -name "*.conf" -exec chmod 644 {} \; 2>/dev/null || true
-    cp -rf /root/.config/. /config/ 2>/dev/null || true
-}
-trap _save_config EXIT
+# Make .conf files AND the directory itself read-only.
+# Qt's QSettings uses atomic writes (write temp file, rename over original).
+# A read-only directory prevents temp file creation, stopping settings from being reset.
+if [ "$LOCK_SETTINGS" = "true" ]; then
+    find /root/.config -name "*.conf" -exec chmod 444 {} \; 2>/dev/null || true
+    chmod 555 /root/.config 2>/dev/null || true
+fi
 
 # Start D-Bus if the system socket isn't available
 if [ ! -e /run/dbus/system_bus_socket ]; then

@@ -30,6 +30,11 @@ if [ "$LOCK_SETTINGS" = "true" ]; then
     chmod 555 /root/.config 2>/dev/null || true
 fi
 
+# Set XDG_RUNTIME_DIR - required by Qt; missing it can cause a segfault
+export XDG_RUNTIME_DIR=/tmp/runtime-root
+mkdir -p "$XDG_RUNTIME_DIR"
+chmod 700 "$XDG_RUNTIME_DIR"
+
 # Start D-Bus if the system socket isn't available
 if [ ! -e /run/dbus/system_bus_socket ]; then
     mkdir -p /run/dbus
@@ -61,7 +66,7 @@ nginx -g "daemon off;" &
 
 GUI_FLAGS="-qml -platform webgl:port=${HTTP_PORT}:wsserverport=${WS_PORT}"
 if [ "$NO_GUI" = "true" ]; then
-    GUI_FLAGS="-no-gui -no-console -no-log"
+    GUI_FLAGS="-no-gui -no-console"
 fi
 
 qdomyos-zwift ${GUI_FLAGS}

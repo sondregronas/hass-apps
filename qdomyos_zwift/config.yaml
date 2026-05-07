@@ -1,5 +1,5 @@
 name: QDomyos-Zwift
-version: "nightly-2026-05-06"
+version: "nightly-2026-05-07"
 slug: qdomyos_zwift
 description: >-
   Runs qdomyos-zwift (by cagnulein) as a Home Assistant add-on. Access the web interface on the configured port (default: 8080).

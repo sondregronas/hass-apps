@@ -3,7 +3,7 @@
 > May not always be fully up to date with the mainline repo.
 
 > **Note:** Connecting to Bluetooth accessories (e.g. Zwift Play controllers) appears to be broken at the moment and may
-> not work as expected.
+> not work as expected. It's best to use the official app, imo.
 
 All credits go to [@cagnulein](https://github.com/cagnulein) and the
 original [qdomyos-zwift](https://github.com/cagnulein/qdomyos-zwift) project. This is simply a Dockerfile wrapper to run

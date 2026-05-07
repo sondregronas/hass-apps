@@ -82,6 +82,6 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: bump add-on to ${{ steps.upstream.outputs.tag }}"
-          file_pattern: qdomyos_zwift/config.yaml qdomyos_zwift/build.yaml
+          file_pattern: qdomyos_zwift/config.yaml
 
 

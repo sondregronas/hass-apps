@@ -24,3 +24,4 @@ Assistant file system. Logs are available under `/addon_configs/<id>_qdomyos_zwi
 | `mqtt_port`     | `1883`  | MQTT broker port                                                              |
 | `mqtt_username` | `""`    | MQTT username                                                                 |
 | `mqtt_password` | `""`    | MQTT password                                                                 |
+| `mqtt_deviceid` | `""`    | MQTT device ID                                                                |

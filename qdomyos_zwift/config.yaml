@@ -25,6 +25,7 @@ options:
   mqtt_port: 1883
   mqtt_username: ""
   mqtt_password: ""
+  mqtt_deviceid: ""
 schema:
   port: int
   no_gui: bool
@@ -32,3 +33,4 @@ schema:
   mqtt_port: int
   mqtt_username: str
   mqtt_password: str
+  mqtt_deviceid: str

@@ -17,8 +17,7 @@ MQTT_PORT=$(read_option mqtt_port)
 MQTT_USERNAME=$(read_option mqtt_username)
 MQTT_PASSWORD=$(read_option mqtt_password)
 
-echo "[INFO] Starting QDomyos-Zwift on port ${PORT} (internal HTTP: ${HTTP_PORT}, WS: ${WS_PORT})..."
-
+# Config persistence
 mkdir -p /config
 if [ -d /root/.config ] && [ ! -L /root/.config ]; then
     cp -rn /root/.config/. /config/ 2>/dev/null || true
@@ -26,7 +25,7 @@ if [ -d /root/.config ] && [ ! -L /root/.config ]; then
 fi
 ln -sfn /config /root/.config
 
-# Apply option overrides to the conf file
+# Apply MQTT overrides
 CONF_FILE="/config/qDomyos-Zwift/qDomyos-Zwift.conf"
 if [ -f "$CONF_FILE" ]; then
     apply_setting() {
@@ -44,14 +43,6 @@ if [ -f "$CONF_FILE" ]; then
     [ -n "$MQTT_PASSWORD" ] && apply_setting mqtt_password "$MQTT_PASSWORD"
 fi
 
-mkdir -p /config/logs
-if [ -d /profiles ] && [ ! -L /profiles ]; then
-    cp -rn /profiles/. /config/logs/ 2>/dev/null || true
-    rm -rf /profiles
-fi
-ln -sfn /config/logs /profiles
-
-# Required by Qt; missing this can cause a segfault
 export XDG_RUNTIME_DIR=/tmp/runtime-root
 mkdir -p "$XDG_RUNTIME_DIR"
 chmod 700 "$XDG_RUNTIME_DIR"
@@ -88,22 +79,15 @@ if [ "$NO_GUI" = "true" ]; then
     GUI_FLAGS="-no-gui -no-console -no-log"
 fi
 
-while true; do
-    set +e
-    qdomyos-zwift ${GUI_FLAGS}
-    EXIT_CODE=$?
-    set -e
+echo "[INFO] Starting QDomyos-Zwift on port ${PORT}..."
 
-    if [ $EXIT_CODE -eq 0 ]; then
-        echo "[INFO] qdomyos-zwift exited cleanly."
-        break
-    fi
+set +e
+qdomyos-zwift ${GUI_FLAGS}
+EXIT_CODE=$?
+set -e
 
+if [ $EXIT_CODE -ne 0 ]; then
     echo "[ERROR] qdomyos-zwift exited with code ${EXIT_CODE}" >&2
-    if [ $EXIT_CODE -eq 139 ]; then
-        echo "[ERROR] Segmentation fault (SIGSEGV) detected." >&2
-    fi
+fi
 
-    echo "[INFO] Restarting in 3 seconds..."
-    sleep 3
-done
+exit $EXIT_CODE

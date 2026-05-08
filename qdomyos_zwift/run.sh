@@ -5,8 +5,8 @@ PORT=$(grep -o '"port":[^,}]*' /data/options.json 2>/dev/null | grep -o '[0-9]*'
 PORT=${PORT:-8080}
 HTTP_PORT=$((PORT + 1))
 WS_PORT=$((PORT + 2))
-NO_GUI=$(grep -o '"no_gui":[^,}]*' /data/options.json 2>/dev/null | grep -o 'true\|false' || echo false)
-NO_GUI=${NO_GUI:-false}
+NO_GUI_JSON=$(grep -o '"no_gui":[^,}]*' /data/options.json 2>/dev/null | grep -o 'true\|false' || true)
+NO_GUI=${NO_GUI:-${NO_GUI_JSON:-false}}
 
 echo "[INFO] Starting QDomyos-Zwift on port ${PORT} (internal HTTP: ${HTTP_PORT}, WS: ${WS_PORT})..."
 
@@ -16,6 +16,13 @@ if [ -d /root/.config ] && [ ! -L /root/.config ]; then
     rm -rf /root/.config
 fi
 ln -sfn /config /root/.config
+
+mkdir -p /config/logs
+if [ -d /profiles ] && [ ! -L /profiles ]; then
+    cp -rn /profiles/. /config/logs/ 2>/dev/null || true
+    rm -rf /profiles
+fi
+ln -sfn /config/logs /profiles
 
 # Required by Qt; missing this can cause a segfault
 export XDG_RUNTIME_DIR=/tmp/runtime-root
@@ -68,9 +75,6 @@ while true; do
     echo "[ERROR] qdomyos-zwift exited with code ${EXIT_CODE}" >&2
     if [ $EXIT_CODE -eq 139 ]; then
         echo "[ERROR] Segmentation fault (SIGSEGV) detected." >&2
-        echo "[ERROR] XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}" >&2
-        echo "[ERROR] /root/.config permissions: $(stat -c '%a %n' /root/.config 2>/dev/null)" >&2
-        echo "[ERROR] dbus socket: $(ls -la /run/dbus/system_bus_socket 2>/dev/null || echo 'missing')" >&2
     fi
 
     echo "[INFO] Restarting in 3 seconds..."

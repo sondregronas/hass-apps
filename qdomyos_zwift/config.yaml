@@ -9,6 +9,7 @@ arch:
 init: false
 privileged:
   - NET_ADMIN
+  - SYS_ADMIN
 host_network: true
 image: ghcr.io/sondregronas/qdomyos-zwift-addon
 map:
@@ -16,6 +17,7 @@ map:
 host_dbus: true
 usb: true
 uart: true
+udev: true
 options:
   port: 8080
   log_level: info

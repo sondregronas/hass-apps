@@ -8,6 +8,15 @@ WS_PORT=$((PORT + 2))
 NO_GUI_JSON=$(grep -o '"no_gui":[^,}]*' /data/options.json 2>/dev/null | grep -o 'true\|false' || true)
 NO_GUI=${NO_GUI:-${NO_GUI_JSON:-false}}
 
+read_option() {
+    grep -o "\"$1\":[^,}]*" /data/options.json 2>/dev/null | sed 's/"[^"]*":\s*"\?\([^,"}\s]*\)"\?/\1/' || true
+}
+
+MQTT_HOST=$(read_option mqtt_host)
+MQTT_PORT=$(read_option mqtt_port)
+MQTT_USERNAME=$(read_option mqtt_username)
+MQTT_PASSWORD=$(read_option mqtt_password)
+
 echo "[INFO] Starting QDomyos-Zwift on port ${PORT} (internal HTTP: ${HTTP_PORT}, WS: ${WS_PORT})..."
 
 mkdir -p /config
@@ -16,6 +25,24 @@ if [ -d /root/.config ] && [ ! -L /root/.config ]; then
     rm -rf /root/.config
 fi
 ln -sfn /config /root/.config
+
+# Apply option overrides to the conf file
+CONF_FILE="/config/qDomyos-Zwift/qDomyos-Zwift.conf"
+if [ -f "$CONF_FILE" ]; then
+    apply_setting() {
+        local key="$1" val="$2"
+        [ -z "$val" ] && return
+        if grep -q "^${key}=" "$CONF_FILE"; then
+            sed -i "s|^${key}=.*|${key}=${val}|" "$CONF_FILE"
+        else
+            echo "${key}=${val}" >> "$CONF_FILE"
+        fi
+    }
+    [ -n "$MQTT_HOST" ]     && apply_setting mqtt_host     "$MQTT_HOST"
+    [ -n "$MQTT_PORT" ]     && apply_setting mqtt_port     "$MQTT_PORT"
+    [ -n "$MQTT_USERNAME" ] && apply_setting mqtt_username "$MQTT_USERNAME"
+    [ -n "$MQTT_PASSWORD" ] && apply_setting mqtt_password "$MQTT_PASSWORD"
+fi
 
 mkdir -p /config/logs
 if [ -d /profiles ] && [ ! -L /profiles ]; then

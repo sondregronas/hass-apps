@@ -39,11 +39,11 @@ if [ -n "$CONF_FILE" ]; then
             echo "${key}=${val}" >> "$CONF_FILE"
         fi
     }
-    [ -n "$MQTT_HOST" ]     && apply_setting mqtt_host     "$MQTT_HOST"
-    [ -n "$MQTT_PORT" ]     && apply_setting mqtt_port     "$MQTT_PORT"
-    [ -n "$MQTT_USERNAME" ] && apply_setting mqtt_username "$MQTT_USERNAME"
-    [ -n "$MQTT_PASSWORD" ] && apply_setting mqtt_password "$MQTT_PASSWORD"
-    [ -n "$MQTT_DEVICEID" ] && apply_setting mqtt_deviceid "$MQTT_DEVICEID"
+    [ -n "$MQTT_HOST" ]        && apply_setting mqtt_host        "$MQTT_HOST"
+    [ -n "$MQTT_PORT" ]        && apply_setting mqtt_port        "$MQTT_PORT"
+    [ -n "$MQTT_USERNAME" ]    && apply_setting mqtt_username    "$MQTT_USERNAME"
+    [ -n "$MQTT_PASSWORD" ]    && apply_setting mqtt_password    "$MQTT_PASSWORD"
+    [ -n "$MQTT_DEVICEID" ]    && apply_setting mqtt_deviceid    "$MQTT_DEVICEID"
     apply_setting virtual_device_bluetooth false
 fi
 

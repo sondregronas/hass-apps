@@ -2,8 +2,8 @@
 
 > May not always be fully up to date with the mainline repo.
 
-> **Note:** Connecting to Bluetooth accessories (e.g. Zwift Play controllers) appears to be broken at the moment and may
-> not work as expected.
+> **Note:** Bluetooth accessory support (e.g. Zwift Play controllers) didn't work reliably for me in this addon — the
+> official app works great though. Your mileage may vary.
 
 All credits go to [@cagnulein](https://github.com/cagnulein) and the
 original [qdomyos-zwift](https://github.com/cagnulein/qdomyos-zwift) project. This is simply a Dockerfile wrapper to run
@@ -20,8 +20,8 @@ Assistant file system. Logs are available under `/addon_configs/<id>_qdomyos_zwi
 |-----------------|---------|-------------------------------------------------------------------------------|
 | `port`          | `8080`  | Port to access the Web UI                                                     |
 | `no_gui`        | `false` | Run headless (`-no-gui -no-console -no-log`). Useful if the GUI causes issues |
-| `mqtt_host`     | `""`    | MQTT broker host. Leave empty to disable MQTT                                 |
-| `mqtt_port`     | `1883`  | MQTT broker port                                                              |
-| `mqtt_username` | `""`    | MQTT username                                                                 |
-| `mqtt_password` | `""`    | MQTT password                                                                 |
-| `mqtt_deviceid` | `""`    | MQTT device ID                                                                |
+| `mqtt_host`     | `""`    | *(optional)* MQTT broker host                                                 |
+| `mqtt_port`     | `1883`  | *(optional)* MQTT broker port                                                 |
+| `mqtt_username` | `""`    | *(optional)* MQTT username                                                    |
+| `mqtt_password` | `""`    | *(optional)* MQTT password                                                    |
+| `mqtt_deviceid` | `""`    | *(optional)* MQTT device ID                                                   |

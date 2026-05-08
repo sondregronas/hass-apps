@@ -29,8 +29,8 @@ options:
 schema:
   port: int
   no_gui: bool
-  mqtt_host: str
-  mqtt_port: int
-  mqtt_username: str
-  mqtt_password: str
-  mqtt_deviceid: str
+  mqtt_host: str?
+  mqtt_port: int?
+  mqtt_username: str?
+  mqtt_password: str?
+  mqtt_deviceid: str?

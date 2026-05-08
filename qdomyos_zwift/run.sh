@@ -20,30 +20,30 @@ MQTT_DEVICEID=$(read_option mqtt_deviceid)
 
 # Config persistence
 mkdir -p /config
-mkdir -p /profiles
 if [ -d /root/.config ] && [ ! -L /root/.config ]; then
     cp -rn /root/.config/. /config/ 2>/dev/null || true
     rm -rf /root/.config
 fi
 ln -sfn /config /root/.config
 
+mkdir -p /root/profiles
+
 # Apply MQTT overrides and disable virtual BT device
-CONF_FILE="/config/qDomyos-Zwift/qDomyos-Zwift.conf"
-if [ -f "$CONF_FILE" ]; then
+CONF_FILE=$(find /config -name "qDomyos-Zwift.conf" 2>/dev/null | head -1)
+if [ -n "$CONF_FILE" ]; then
     apply_setting() {
         local key="$1" val="$2"
-        [ -z "$val" ] && return
         if grep -q "^${key}=" "$CONF_FILE"; then
             sed -i "s|^${key}=.*|${key}=${val}|" "$CONF_FILE"
         else
             echo "${key}=${val}" >> "$CONF_FILE"
         fi
     }
-    [ -n "$MQTT_HOST" ]     && apply_setting mqtt_host              "$MQTT_HOST"
-    [ -n "$MQTT_PORT" ]     && apply_setting mqtt_port              "$MQTT_PORT"
-    [ -n "$MQTT_USERNAME" ] && apply_setting mqtt_username          "$MQTT_USERNAME"
-    [ -n "$MQTT_PASSWORD" ] && apply_setting mqtt_password          "$MQTT_PASSWORD"
-    [ -n "$MQTT_DEVICEID" ] && apply_setting mqtt_deviceid          "$MQTT_DEVICEID"
+    [ -n "$MQTT_HOST" ]     && apply_setting mqtt_host     "$MQTT_HOST"
+    [ -n "$MQTT_PORT" ]     && apply_setting mqtt_port     "$MQTT_PORT"
+    [ -n "$MQTT_USERNAME" ] && apply_setting mqtt_username "$MQTT_USERNAME"
+    [ -n "$MQTT_PASSWORD" ] && apply_setting mqtt_password "$MQTT_PASSWORD"
+    [ -n "$MQTT_DEVICEID" ] && apply_setting mqtt_deviceid "$MQTT_DEVICEID"
     apply_setting virtual_device_bluetooth false
 fi
 

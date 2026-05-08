@@ -54,11 +54,7 @@ RUN git submodule update --init src/smtpclient/ \
 WORKDIR /usr/local/src/qdomyos-zwift/src
 RUN qmake qdomyos-zwift.pro && make -j$(nproc)
 
-# ── Stage 2: Build Qt WebGL platform plugin ──────────────────────────────────
-FROM builder AS webgl-builder
-
 ARG QT_WEBGL_BRANCH=5.15
-
 WORKDIR /usr/local/src
 RUN git clone --depth 1 --branch ${QT_WEBGL_BRANCH} \
         https://github.com/qt/qtwebglplugin.git qtwebglplugin \
@@ -68,7 +64,7 @@ RUN git clone --depth 1 --branch ${QT_WEBGL_BRANCH} \
     && qmake \
     && make -j$(nproc)
 
-# ── Stage 3: Runtime ─────────────────────────────────────────────────────────
+# ── Stage 2: Runtime ─────────────────────────────────────────────────────────
 FROM ubuntu:22.04
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -99,7 +95,7 @@ RUN apt-get update && apt-get upgrade -y \
 COPY --from=builder /usr/local/src/qdomyos-zwift/src/qdomyos-zwift /usr/local/bin/qdomyos-zwift
 
 # Install the WebGL platform plugin into the correct multiarch path
-COPY --from=webgl-builder /usr/local/src/qtwebglplugin/plugins/platforms/libqwebgl.so /tmp/libqwebgl.so
+COPY --from=builder /usr/local/src/qtwebglplugin/plugins/platforms/libqwebgl.so /tmp/libqwebgl.so
 RUN ARCH=$(uname -m) \
     && case "$ARCH" in \
         x86_64)  TRIPLE="x86_64-linux-gnu" ;; \

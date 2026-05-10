@@ -4,36 +4,36 @@ FROM ubuntu:24.04 AS builder
 ARG DEBIAN_FRONTEND=noninteractive
 ARG QDOMYOS_VERSION=master
 
-# Exact package list from https://github.com/cagnulein/qdomyos-zwift/blob/master/docs/10_Installation.md
 RUN apt-get update && apt-get upgrade -y \
     && apt-get install --no-install-recommends -y \
         git \
         ca-certificates \
-        qtquickcontrols2-5-dev \
-        libqt5bluetooth5 \
-        libqt5widgets5 \
-        libqt5positioning5 \
-        libqt5xml5 \
-        qtconnectivity5-dev \
-        qtbase5-private-dev \
+        build-essential \
+        cmake \
         qtbase5-dev \
+        qtbase5-private-dev \
+        qtbase5-dev-tools \
+        qtchooser \
+        qt5-qmake \
+        qttools5-dev-tools \
+        qtconnectivity5-dev \
         qtpositioning5-dev \
-        libqt5charts5-dev \
-        libqt5charts5 \
-        libqt5networkauth5-dev \
-        libqt5websockets5-dev \
-        qml-module* \
-        libqt5texttospeech5-dev \
-        libqt5texttospeech5 \
-        libqt5location5-plugins \
         qtlocation5-dev \
         qtmultimedia5-dev \
-        libqt5multimediawidgets5 \
-        libqt5multimedia5-plugins \
-        libqt5multimedia5 \
+        qtquickcontrols2-5-dev \
+        libqt5bluetooth5 \
+        libqt5charts5-dev \
+        libqt5networkauth5-dev \
+        libqt5websockets5-dev \
+        libqt5texttospeech5-dev \
+        libqt5svg5-dev \
+        libqt5xml5 \
         libqt5sql5 \
-        g++ \
-        make \
+        libqt5sql5-sqlite \
+        libsqlite3-dev \
+        libudev-dev \
+        libusb-1.0-0-dev \
+        qml-module* \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/local/src
@@ -47,10 +47,13 @@ RUN git clone --recursive \
 WORKDIR /usr/local/src/qdomyos-zwift
 RUN git submodule update --init src/smtpclient/ \
     && git submodule update --init src/qmdnsengine/ \
+    && git submodule update --init src/qthttpserver/ \
     && git submodule update --init tst/googletest/
 
 WORKDIR /usr/local/src/qdomyos-zwift/src
-RUN qmake qdomyos-zwift.pro && make -j$(nproc)
+RUN qmake "CONFIG+=release" qdomyos-zwift.pro \
+    && make -j$(nproc) \
+    && strip qdomyos-zwift
 
 ARG QT_WEBGL_BRANCH=5.15
 WORKDIR /usr/local/src
@@ -77,12 +80,16 @@ RUN apt-get update && apt-get upgrade -y \
         libqt5networkauth5 \
         libqt5websockets5 \
         libqt5texttospeech5 \
+        libqt5svg5 \
         libqt5location5-plugins \
         libqt5location5 \
         libqt5multimediawidgets5 \
         libqt5multimedia5-plugins \
         libqt5multimedia5 \
         libqt5sql5 \
+        libqt5sql5-sqlite \
+        libudev1 \
+        libusb-1.0-0 \
         qml-module* \
         nginx \
         bash \

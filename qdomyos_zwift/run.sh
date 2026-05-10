@@ -1,16 +1,16 @@
 #!/bin/bash
 set -e
 
-PORT=$(grep -o '"port":[^,}]*' /data/options.json 2>/dev/null | grep -o '[0-9]*' || echo 8080)
+read_option() {
+    python3 -c "import json,sys; d=json.load(open('/data/options.json')); print(d.get('$1','') or '',end='')" 2>/dev/null || true
+}
+
+PORT=$(read_option port)
 PORT=${PORT:-8080}
 HTTP_PORT=$((PORT + 1))
 WS_PORT=$((PORT + 2))
-NO_GUI_JSON=$(grep -o '"no_gui":[^,}]*' /data/options.json 2>/dev/null | grep -o 'true\|false' || true)
-NO_GUI=${NO_GUI:-${NO_GUI_JSON:-false}}
-
-read_option() {
-    grep -o "\"$1\":[^,}]*" /data/options.json 2>/dev/null | sed 's/"[^"]*":\s*"\?\([^,"}\s]*\)"\?/\1/' || true
-}
+NO_GUI=$(read_option no_gui)
+NO_GUI=${NO_GUI:-false}
 
 MQTT_HOST=$(read_option mqtt_host)
 MQTT_PORT=$(read_option mqtt_port)
@@ -18,7 +18,7 @@ MQTT_USERNAME=$(read_option mqtt_username)
 MQTT_PASSWORD=$(read_option mqtt_password)
 MQTT_DEVICEID=$(read_option mqtt_deviceid)
 
-# Config persistence
+# Config persistence: symlink /root/.config → /config so settings survive restarts
 mkdir -p /config
 if [ -d /root/.config ] && [ ! -L /root/.config ]; then
     cp -rn /root/.config/. /config/ 2>/dev/null || true
@@ -26,9 +26,7 @@ if [ -d /root/.config ] && [ ! -L /root/.config ]; then
 fi
 ln -sfn /config /root/.config
 
-mkdir -p /root/profiles
-
-# Apply MQTT overrides and disable virtual BT device
+# Apply MQTT settings into the conf file
 CONF_FILE=$(find /config -name "qDomyos-Zwift.conf" 2>/dev/null | head -1)
 if [ -n "$CONF_FILE" ]; then
     apply_setting() {
@@ -39,11 +37,11 @@ if [ -n "$CONF_FILE" ]; then
             echo "${key}=${val}" >> "$CONF_FILE"
         fi
     }
-    [ -n "$MQTT_HOST" ]        && apply_setting mqtt_host        "$MQTT_HOST"
-    [ -n "$MQTT_PORT" ]        && apply_setting mqtt_port        "$MQTT_PORT"
-    [ -n "$MQTT_USERNAME" ]    && apply_setting mqtt_username    "$MQTT_USERNAME"
-    [ -n "$MQTT_PASSWORD" ]    && apply_setting mqtt_password    "$MQTT_PASSWORD"
-    [ -n "$MQTT_DEVICEID" ]    && apply_setting mqtt_deviceid    "$MQTT_DEVICEID"
+    [ -n "$MQTT_HOST" ]     && apply_setting mqtt_host     "$MQTT_HOST"
+    [ -n "$MQTT_PORT" ]     && apply_setting mqtt_port     "$MQTT_PORT"
+    [ -n "$MQTT_USERNAME" ] && apply_setting mqtt_username "$MQTT_USERNAME"
+    [ -n "$MQTT_PASSWORD" ] && apply_setting mqtt_password "$MQTT_PASSWORD"
+    [ -n "$MQTT_DEVICEID" ] && apply_setting mqtt_deviceid "$MQTT_DEVICEID"
 fi
 
 export XDG_RUNTIME_DIR=/tmp/runtime-root
@@ -51,9 +49,10 @@ mkdir -p "$XDG_RUNTIME_DIR"
 chmod 700 "$XDG_RUNTIME_DIR"
 
 if [ ! -S /run/dbus/system_bus_socket ]; then
-    echo "[FATAL] Missing host DBus socket"
+    echo "[FATAL] No host D-Bus socket at /run/dbus/system_bus_socket — ensure host_dbus: true in config.yaml" >&2
     exit 1
 fi
+export DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
 
 cat > /etc/nginx/nginx.conf <<EOF
 events {}
@@ -77,20 +76,16 @@ EOF
 
 nginx -g "daemon off;" &
 
-GUI_FLAGS="-qml -platform webgl:port=${HTTP_PORT}:wsserverport=${WS_PORT}"
 if [ "$NO_GUI" = "true" ]; then
     GUI_FLAGS="-no-gui -no-console -no-log"
+else
+    GUI_FLAGS="-qml -platform webgl:port=${HTTP_PORT}:wsserverport=${WS_PORT}"
 fi
 
 echo "[INFO] Starting QDomyos-Zwift on port ${PORT}..."
 
-set +e
 qdomyos-zwift ${GUI_FLAGS}
 EXIT_CODE=$?
-set -e
 
-if [ $EXIT_CODE -ne 0 ]; then
-    echo "[ERROR] qdomyos-zwift exited with code ${EXIT_CODE}" >&2
-fi
-
+[ $EXIT_CODE -ne 0 ] && echo "[ERROR] qdomyos-zwift exited with code ${EXIT_CODE}" >&2
 exit $EXIT_CODE

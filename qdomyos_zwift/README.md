@@ -12,7 +12,7 @@ it as a Home Assistant add-on.
 ## Settings
 
 The add-on's configuration file (`qDomyos-Zwift.conf`) is located at `/addon_configs/<id>_qdomyos_zwift/` in the Home
-Assistant file system. Logs are available under `/addon_configs/<id>_qdomyos_zwift/logs/`.
+Assistant file system.
 
 ## Configuration
 

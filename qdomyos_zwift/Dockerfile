@@ -1,5 +1,5 @@
 # ── Stage 1: Build ───────────────────────────────────────────────────────────
-FROM ubuntu:22.04 AS builder
+FROM ubuntu:24.04 AS builder
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG QDOMYOS_VERSION=master
@@ -32,8 +32,6 @@ RUN apt-get update && apt-get upgrade -y \
         libqt5multimedia5-plugins \
         libqt5multimedia5 \
         libqt5sql5 \
-        libqt5sql5-mysql \
-        libqt5sql5-psql \
         g++ \
         make \
     && rm -rf /var/lib/apt/lists/*
@@ -65,7 +63,7 @@ RUN git clone --depth 1 --branch ${QT_WEBGL_BRANCH} \
     && make -j$(nproc)
 
 # ── Stage 2: Runtime ─────────────────────────────────────────────────────────
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 

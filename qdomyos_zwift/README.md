@@ -16,12 +16,12 @@ Assistant file system.
 
 ## Configuration
 
-| Option          | Default | Description                                                                   |
-|-----------------|---------|-------------------------------------------------------------------------------|
-| `port`          | `8080`  | Port to access the Web UI                                                     |
-| `no_gui`        | `false` | Run headless (`-no-gui -no-console -no-log`). Useful if the GUI causes issues |
-| `mqtt_host`     | `""`    | *(optional)* MQTT broker host                                                 |
-| `mqtt_port`     | `1883`  | *(optional)* MQTT broker port                                                 |
-| `mqtt_username` | `""`    | *(optional)* MQTT username                                                    |
-| `mqtt_password` | `""`    | *(optional)* MQTT password                                                    |
-| `mqtt_deviceid` | `""`    | *(optional)* MQTT device ID                                                   |
+| Option          | Default | Description                                   |
+|-----------------|---------|-----------------------------------------------|
+| `port`          | `8080`  | Port to access the Web UI                     |
+| `no_gui`        | `false` | Run headless (`-no-gui -no-console -no-log`). |
+| `mqtt_host`     | `""`    | *(optional)* MQTT broker host                 |
+| `mqtt_port`     | `1883`  | *(optional)* MQTT broker port                 |
+| `mqtt_username` | `""`    | *(optional)* MQTT username                    |
+| `mqtt_password` | `""`    | *(optional)* MQTT password                    |
+| `mqtt_deviceid` | `""`    | *(optional)* MQTT device ID                   |

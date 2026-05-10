@@ -3,9 +3,8 @@ set -e
 
 export QT_LOGGING_RULES="qt.bluetooth*=true"
 export QT_ASSUME_STDERR_HAS_CONSOLE=1
-export QT_BLUETOOTH_USE_KERNEL_PERIPHERAL=1
 export QT_FATAL_WARNINGS=0
-export QT_NO_GLIB=1
+export DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
 
 PORT=$(grep -o '"port":[^,}]*' /data/options.json 2>/dev/null | grep -o '[0-9]*' || echo 8080)
 PORT=${PORT:-8080}

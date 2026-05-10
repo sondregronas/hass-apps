@@ -86,8 +86,6 @@ RUN apt-get update && apt-get upgrade -y \
         libqt5multimedia5 \
         libqt5sql5 \
         qml-module* \
-        bluez \
-        dbus \
         nginx \
         bash \
     && rm -rf /var/lib/apt/lists/*

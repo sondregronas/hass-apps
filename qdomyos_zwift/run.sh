@@ -44,7 +44,6 @@ if [ -n "$CONF_FILE" ]; then
     [ -n "$MQTT_USERNAME" ]    && apply_setting mqtt_username    "$MQTT_USERNAME"
     [ -n "$MQTT_PASSWORD" ]    && apply_setting mqtt_password    "$MQTT_PASSWORD"
     [ -n "$MQTT_DEVICEID" ]    && apply_setting mqtt_deviceid    "$MQTT_DEVICEID"
-    apply_setting virtual_device_bluetooth false
 fi
 
 export XDG_RUNTIME_DIR=/tmp/runtime-root
@@ -93,5 +92,8 @@ set -e
 if [ $EXIT_CODE -ne 0 ]; then
     echo "[ERROR] qdomyos-zwift exited with code ${EXIT_CODE}" >&2
 fi
+
+export QT_LOGGING_RULES="qt.bluetooth*=true"
+export QT_ASSUME_STDERR_HAS_CONSOLE=1
 
 exit $EXIT_CODE

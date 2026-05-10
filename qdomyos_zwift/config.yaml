@@ -9,6 +9,7 @@ arch:
 init: false
 privileged:
   - NET_ADMIN
+  - NET_RAW
   - SYS_ADMIN
 host_network: true
 image: ghcr.io/sondregronas/qdomyos-zwift-addon

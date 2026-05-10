@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e
 
+export QT_LOGGING_RULES="qt.bluetooth*=true"
+export QT_ASSUME_STDERR_HAS_CONSOLE=1
+export QT_BLUETOOTH_USE_KERNEL_PERIPHERAL=1
+export QT_FATAL_WARNINGS=0
+
 PORT=$(grep -o '"port":[^,}]*' /data/options.json 2>/dev/null | grep -o '[0-9]*' || echo 8080)
 PORT=${PORT:-8080}
 HTTP_PORT=$((PORT + 1))
@@ -50,9 +55,9 @@ export XDG_RUNTIME_DIR=/tmp/runtime-root
 mkdir -p "$XDG_RUNTIME_DIR"
 chmod 700 "$XDG_RUNTIME_DIR"
 
-if [ ! -e /run/dbus/system_bus_socket ]; then
-    mkdir -p /run/dbus
-    dbus-daemon --system --fork
+if [ ! -S /run/dbus/system_bus_socket ]; then
+    echo "[FATAL] Missing host DBus socket"
+    exit 1
 fi
 
 cat > /etc/nginx/nginx.conf <<EOF
@@ -75,6 +80,7 @@ http {
 }
 EOF
 
+
 nginx -g "daemon off;" &
 
 GUI_FLAGS="-qml -platform webgl:port=${HTTP_PORT}:wsserverport=${WS_PORT}"
@@ -84,6 +90,8 @@ fi
 
 echo "[INFO] Starting QDomyos-Zwift on port ${PORT}..."
 
+ulimit -c unlimited
+
 set +e
 qdomyos-zwift ${GUI_FLAGS}
 EXIT_CODE=$?
@@ -92,8 +100,5 @@ set -e
 if [ $EXIT_CODE -ne 0 ]; then
     echo "[ERROR] qdomyos-zwift exited with code ${EXIT_CODE}" >&2
 fi
-
-export QT_LOGGING_RULES="qt.bluetooth*=true"
-export QT_ASSUME_STDERR_HAS_CONSOLE=1
 
 exit $EXIT_CODE
